@@ -8,6 +8,11 @@ To ensure a balanced division for object detection, the dataset is split into tr
 
 To construct the dataset, the authors took multiple photos of each surgical instrument individually, varying the tray's rotations, inclinations, and lighting conditions. They used BBox-Label-Tool and YoloMark for this purpose. To account for occlusion, each tool was paired with another of a different class, and the same photographic process was repeated, with one instrument occluding the other. Finally, additional photos were taken with tools from all classes without occlusion.
 
+| Surgical tools present in the image | Amount of photos |
+| ----------------------------------- | ---------------- |
+| fill later                          |                  |
+|                                     |                  |
+
 The division of the dataset into train and test groups was carefully considered to maintain balance, especially for images with two instruments. This involved calculating the optimal number of images for each instrument combination and ensuring that occlusion reasoning data was also appropriately divided.
 
 To facilitate this complex division process, a Python script was developed, randomly sorting the dataset multiple times and selecting images for the test and train groups based on the calculated values.
