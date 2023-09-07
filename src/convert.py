@@ -86,22 +86,35 @@ def convert_and_upload_supervisely_project(
     bboxes_ext = ".txt"
     images_folder = "Images/All/images"
     boxes_folder = "Labels/label object names"
+    occlusion_folder = "Labels/label top-bottom"
     split_train = "Test-Train Groups/train-obj_detector.txt"
     split_test = "Test-Train Groups/test-obj_detector.txt"
 
     def create_ann(image_path):
         labels = []
-        tags = []
 
         image_np = sly.imaging.image.read(image_path)[:, :, 0]
         img_height = image_np.shape[0]
         img_wight = image_np.shape[1]
         ann_path = os.path.join(boxes_path, get_file_name(image_path) + bboxes_ext)
+        curr_occlusion = os.path.join(occlusion_path, get_file_name(image_path) + bboxes_ext)
+
+        tag_to_value = {}
+        with open(curr_occlusion) as f:
+            content = f.read().split("\n")
+            for idx, curr_data in enumerate(content):
+                if len(curr_data) != 0:
+                    occlusion_data = list(map(float, curr_data.rstrip().split(" ")))
+                    if occlusion_data[0] == 0:
+                        occlusion_value = "True"
+                    else:
+                        occlusion_value = "False"
+                    occlusion = sly.Tag(tag_occlusion, value=occlusion_value)
+                    tag_to_value[idx] = occlusion
 
         with open(ann_path) as f:
             content = f.read().split("\n")
-
-            for curr_data in content:
+            for idx, curr_data in enumerate(content):
                 if len(curr_data) != 0:
                     ann_data = list(map(float, curr_data.rstrip().split(" ")))
                     curr_obj_class = idx_to_obj_class[int(ann_data[0])]
@@ -110,32 +123,26 @@ def convert_and_upload_supervisely_project(
                     top = int((ann_data[2] - ann_data[4] / 2) * img_height)
                     bottom = int((ann_data[2] + ann_data[4] / 2) * img_height)
                     rectangle = sly.Rectangle(top=top, left=left, bottom=bottom, right=right)
-                    label = sly.Label(rectangle, curr_obj_class)
-                    labels.append(label)
+                    tag = tag_to_value.get(idx)
+                    if tag is not None:
+                        label = sly.Label(rectangle, curr_obj_class, tags=[tag])
+                        labels.append(label)
 
-        if get_file_name_with_ext(image_path) in train_names:
-            tag = sly.Tag(tag_train)
-            tags.append(tag)
-        elif get_file_name_with_ext(image_path) in test_names:
-            tag = sly.Tag(tag_test)
-            tags.append(tag)
-
-        return sly.Annotation(img_size=(img_height, img_wight), labels=labels, img_tags=tags)
+        return sly.Annotation(img_size=(img_height, img_wight), labels=labels)
 
     idx_to_obj_class = {
-        0: sly.ObjClass("Scalpel nº4", sly.Rectangle),
-        1: sly.ObjClass("Straight Dissection Clamp", sly.Rectangle),
-        2: sly.ObjClass("Straight Mayo Scissor", sly.Rectangle),
-        3: sly.ObjClass("Curved Mayo Scissor", sly.Rectangle),
+        0: sly.ObjClass("scalpel nº4", sly.Rectangle),
+        1: sly.ObjClass("straight dissection clamp", sly.Rectangle),
+        2: sly.ObjClass("straight mayo scissor", sly.Rectangle),
+        3: sly.ObjClass("curved mayo scissor", sly.Rectangle),
     }
 
-    tag_train = sly.TagMeta("train", sly.TagValueType.NONE)
-    tag_test = sly.TagMeta("test", sly.TagValueType.NONE)
+    tag_occlusion = sly.TagMeta(
+        "occlusion", sly.TagValueType.ONEOF_STRING, possible_values=["True", "False"]
+    )
 
     project = api.project.create(workspace_id, project_name, change_name_if_conflict=True)
-    meta = sly.ProjectMeta(
-        obj_classes=list(idx_to_obj_class.values()), tag_metas=[tag_train, tag_test]
-    )
+    meta = sly.ProjectMeta(obj_classes=list(idx_to_obj_class.values()), tag_metas=[tag_occlusion])
     api.project.update_meta(project.id, meta.to_json())
 
     train_names = []
@@ -144,7 +151,8 @@ def convert_and_upload_supervisely_project(
         content = f.read().split("\n")
 
         for curr_data in content:
-            train_names.append(curr_data.split("/")[-1])
+            if len(curr_data) != 0:
+                train_names.append(curr_data.split("/")[-1])
 
     test_names = []
     test_split_path = os.path.join(dataset_path, split_test)
@@ -152,26 +160,30 @@ def convert_and_upload_supervisely_project(
         content = f.read().split("\n")
 
         for curr_data in content:
-            test_names.append(curr_data.split("/")[-1])
+            if len(curr_data) != 0:
+                test_names.append(curr_data.split("/")[-1])
 
     images_path = os.path.join(dataset_path, images_folder)
     boxes_path = os.path.join(dataset_path, boxes_folder)
-    images_names = os.listdir(images_path)
+    occlusion_path = os.path.join(dataset_path, occlusion_folder)
 
-    dataset = api.dataset.create(project.id, ds_name, change_name_if_conflict=True)
+    ds_to_images = {"train": train_names, "test": test_names}
 
-    progress = sly.Progress("Create dataset {}".format(ds_name), len(images_names))
+    for ds_name, images_names in ds_to_images.items():
+        dataset = api.dataset.create(project.id, ds_name, change_name_if_conflict=True)
 
-    for images_names_batch in sly.batched(images_names, batch_size=batch_size):
-        img_pathes_batch = [
-            os.path.join(images_path, image_name) for image_name in images_names_batch
-        ]
+        progress = sly.Progress("Create dataset {}".format(ds_name), len(images_names))
 
-        img_infos = api.image.upload_paths(dataset.id, images_names_batch, img_pathes_batch)
-        img_ids = [im_info.id for im_info in img_infos]
+        for images_names_batch in sly.batched(images_names, batch_size=batch_size):
+            img_pathes_batch = [
+                os.path.join(images_path, image_name) for image_name in images_names_batch
+            ]
 
-        anns = [create_ann(image_path) for image_path in img_pathes_batch]
-        api.annotation.upload_anns(img_ids, anns)
+            img_infos = api.image.upload_paths(dataset.id, images_names_batch, img_pathes_batch)
+            img_ids = [im_info.id for im_info in img_infos]
 
-        progress.iters_done_report(len(images_names_batch))
+            anns = [create_ann(image_path) for image_path in img_pathes_batch]
+            api.annotation.upload_anns(img_ids, anns)
+
+            progress.iters_done_report(len(images_names_batch))
     return project
