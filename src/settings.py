@@ -71,7 +71,7 @@ ORGANIZATION_NAME: Optional[Union[str, List[str]]] = "University of Coimbra, Por
 ORGANIZATION_URL: Optional[Union[str, List[str]]] = "https://www.uc.pt/en"
 
 # Set '__PRETEXT__' or '__POSTTEXT__' as a key with string value to add custom text. e.g. SLYTAGSPLIT = {'__POSTTEXT__':'some text}
-SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {"PRETEXT": "Additionally, objects with ***occlusion*** are marked. Explore them in supervisely."}
+SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {"__PRETEXT__": "Additionally, objects with ***occlusion*** are marked. Explore them in supervisely."}
 TAGS: Optional[List[str]] = None
 
 
