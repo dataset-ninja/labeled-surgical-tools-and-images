@@ -2,16 +2,11 @@ The **Labeled Surgical Tools and Images** was created for a master's thesis proj
 
 The dataset's inspiration arose from an interview with the Chief Nurse of the Main Operating Room at the Hospital of the University of Coimbra. During the interview, concerns were raised about the time nurses spend sorting surgical tools after disinfection, which could be better utilized for patient care. This dataset was created as part of an effort to develop a robotic system that could streamline this process.
 
-The dataset comprises a total of 3009 images, each accompanied by corresponding labels. These labels categorize the objects into four types: *scalpel #4*, *straight dissection clamp*, s*traight mayo scissor*, or *curved mayo scissor*. Additionally, each tool is classified as either "on top" (not occluded) or "at the bottom" (occluded).
+The dataset comprises a total of 3009 images, each accompanied by corresponding labels. These labels categorize the objects into four types: *scalpel  nº4*, *straight dissection clamp*, *straight mayo scissor*, or *curved mayo scissor*. Additionally, each tool is classified as either "on top" (***occlusion***`=False`) or "at the bottom" (***occlusion***`=True`).
 
 To ensure a balanced division for object detection, the dataset is split into training and test groups. While the standard split ratio in machine learning is 70% for training and 30% for testing, the authors stressed the importance of maintaining a balanced proportion of every class within the dataset. To achieve this, they employed a more nuanced approach to determine the division percentages, taking into account the number of images for each combination of tools.
 
 To construct the dataset, the authors took multiple photos of each surgical instrument individually, varying the tray's rotations, inclinations, and lighting conditions. They used BBox-Label-Tool and YoloMark for this purpose. To account for occlusion, each tool was paired with another of a different class, and the same photographic process was repeated, with one instrument occluding the other. Finally, additional photos were taken with tools from all classes without occlusion.
-
-| Surgical tools present in the image | Amount of photos |
-| ----------------------------------- | ---------------- |
-| fill later                          |                  |
-|                                     |                  |
 
 The division of the dataset into train and test groups was carefully considered to maintain balance, especially for images with two instruments. This involved calculating the optimal number of images for each instrument combination and ensuring that occlusion reasoning data was also appropriately divided.
 
