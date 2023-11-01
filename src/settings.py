@@ -66,16 +66,18 @@ REPOSITORY: Optional[Union[str, List[str], Dict[str, str]]] = None
 
 CITATION_URL: Optional[str] = None
 AUTHORS: Optional[List[str]] = ["Diana Lavado", "Joaquim da Silva", "Francisco Caramelo"]
+AUTHORS_CONTACTS: Optional[List[str]] = ["https://www.kaggle.com/dilavado"]
 
 ORGANIZATION_NAME: Optional[Union[str, List[str]]] = "University of Coimbra, Portugal"
 ORGANIZATION_URL: Optional[Union[str, List[str]]] = "https://www.uc.pt/en"
 
 # Set '__PRETEXT__' or '__POSTTEXT__' as a key with string value to add custom text. e.g. SLYTAGSPLIT = {'__POSTTEXT__':'some text}
-SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {"__PRETEXT__": "Additionally, objects with ***occlusion*** are marked. Explore them in supervisely."}
+SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {"__PRETEXT__": "Additionally, objects with ***occlusion*** are marked. Explore them in supervisely labeling tool"}
 TAGS: Optional[List[str]] = None
 
 
 SECTION_EXPLORE_CUSTOM_DATASETS: Optional[List[str]] = None
+
 
 ##################################
 ###### ? Checks. Do not edit #####
@@ -119,6 +121,7 @@ def get_settings():
     settings["repository"] = REPOSITORY
     settings["citation_url"] = CITATION_URL
     settings["authors"] = AUTHORS
+    settings["authors_contacts"] = AUTHORS_CONTACTS
     settings["organization_name"] = ORGANIZATION_NAME
     settings["organization_url"] = ORGANIZATION_URL
     settings["slytagsplit"] = SLYTAGSPLIT
