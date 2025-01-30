@@ -1,6 +1,6 @@
 Dataset **Labeled Surgical Tools and Images** can be downloaded in [Supervisely format](https://developer.supervisely.com/api-references/supervisely-annotation-json-format):
 
- [Download](https://www.dropbox.com/scl/fi/yanvwhob3zo0ppay0g7bs/labeled-surgical-tools-and-images-DatasetNinja.tar?rlkey=aurujj9vip6n2g1z5pulryie2&dl=1)
+ [Download](https://assets.supervisely.com/remote/eyJsaW5rIjogImZzOi8vYXNzZXRzLzE5MzVfTGFiZWxlZCBTdXJnaWNhbCBUb29scyBhbmQgSW1hZ2VzL2xhYmVsZWQtc3VyZ2ljYWwtdG9vbHMtYW5kLWltYWdlcy1EYXRhc2V0TmluamEudGFyIiwgInNpZyI6ICJRUzg0VC9URU5KOWJtNFFjY2ZPNmlsRGVrVld4Mm9yT0xiM1RHOUUvc3dzPSJ9)
 
 As an alternative, it can be downloaded with *dataset-tools* package:
 ``` bash
